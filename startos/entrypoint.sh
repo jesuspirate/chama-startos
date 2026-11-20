@@ -12,6 +12,11 @@ trap stop INT TERM EXIT
 # deletes wallet evidence or removes it from StartOS backups.
 data_dir="/data/client-1"
 mkdir -p "$data_dir"
+
+: "${CHAMA_BRIDGE_AUTH_TOKEN:?CHAMA_BRIDGE_AUTH_TOKEN must be set}"
+(umask 077 && printf 'proxy_set_header Authorization "Bearer %s";\n' \
+  "$CHAMA_BRIDGE_AUTH_TOKEN" >/etc/nginx/chama-bridge-auth.conf)
+
 chama-fedimint-bridge --data-dir "$data_dir" serve --bind "127.0.0.1:8787" &
 pids="$pids $!"
 

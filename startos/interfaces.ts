@@ -1,8 +1,10 @@
+import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
-import { clients } from './utils'
+import { clients, uiUsername } from './utils'
 
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
+  const password = await storeJson.read((s) => s.uiPassword).const(effects)
   const receipts = []
 
   // Keep `client-one-host` stable from the former lab package so an upgrade
@@ -10,7 +12,16 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   for (const { id, name, uiPort } of clients) {
     const origin = await sdk.MultiHost.of(effects, `${id}-host`).bindPort(
       uiPort,
-      { protocol: 'http' },
+      {
+        protocol: 'http',
+        proxy: {
+          auth: {
+            type: 'basic',
+            credentials: password ? [{ username: uiUsername, password }] : [],
+            realm: 'Chama',
+          },
+        },
+      },
     )
     receipts.push(
       await origin.export([

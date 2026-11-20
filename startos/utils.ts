@@ -6,3 +6,5 @@
 export const clients = [
   { id: 'client-one', name: 'Chama', uiPort: 8080, bridgePort: 8787 },
 ] as const
+
+export const uiUsername = 'admin'

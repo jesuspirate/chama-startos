@@ -1,3 +1,4 @@
+import { storeJson } from '../fileModels/store.json'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { clients } from '../utils'
@@ -12,9 +13,10 @@ const DISCOVERY = {
   skipped: 'Not configured',
 } as const
 
-async function readHealth(port: number) {
+async function readHealth(port: number, token?: string | null) {
   try {
     const res = await fetch(`http://127.0.0.1:${port}/health`, {
+      headers: { authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(3_000),
     })
     if (!res.ok) return null
@@ -41,62 +43,67 @@ export const walletStatus = sdk.Action.withoutInput(
     visibility: 'enabled',
   }),
 
-  async ({ effects }) => ({
-    version: '1' as const,
-    title: i18n('Wallet Bridge Status'),
-    message: i18n(
-      'Chama holds ecash only once you have joined a federation inside the app.',
-    ),
-    result: {
-      type: 'group' as const,
-      value: await Promise.all(
-        clients.map(async ({ name, bridgePort }) => {
-          const health = await readHealth(bridgePort)
-          if (!health)
+  async ({ effects }) => {
+    const token = await storeJson.read((s) => s.bridgeAuthToken).once()
+    return {
+      version: '1' as const,
+      title: i18n('Wallet Bridge Status'),
+      message: i18n(
+        'Chama holds ecash only once you have joined a federation inside the app.',
+      ),
+      result: {
+        type: 'group' as const,
+        value: await Promise.all(
+          clients.map(async ({ name, bridgePort }) => {
+            const health = await readHealth(bridgePort, token)
+            if (!health)
+              return {
+                type: 'single' as const,
+                name: i18n(name),
+                description: null,
+                value: i18n('Not responding'),
+                masked: false,
+                copyable: false,
+                qr: false,
+                launchable: false,
+              }
+            const status = health.discovery?.status ?? ''
             return {
-              type: 'single' as const,
+              type: 'group' as const,
               name: i18n(name),
               description: null,
-              value: i18n('Not responding'),
-              masked: false,
-              copyable: false,
-              qr: false,
-              launchable: false,
+              value: [
+                {
+                  type: 'single' as const,
+                  name: i18n('Federation'),
+                  description: null,
+                  value: health.joined
+                    ? i18n('Joined')
+                    : i18n('Not joined yet'),
+                  masked: false,
+                  copyable: false,
+                  qr: false,
+                  launchable: false,
+                },
+                {
+                  type: 'single' as const,
+                  name: i18n('Relay discovery'),
+                  description: null,
+                  value: i18n(
+                    status in DISCOVERY
+                      ? DISCOVERY[status as keyof typeof DISCOVERY]
+                      : 'Unknown',
+                  ),
+                  masked: false,
+                  copyable: false,
+                  qr: false,
+                  launchable: false,
+                },
+              ],
             }
-          const status = health.discovery?.status ?? ''
-          return {
-            type: 'group' as const,
-            name: i18n(name),
-            description: null,
-            value: [
-              {
-                type: 'single' as const,
-                name: i18n('Federation'),
-                description: null,
-                value: health.joined ? i18n('Joined') : i18n('Not joined yet'),
-                masked: false,
-                copyable: false,
-                qr: false,
-                launchable: false,
-              },
-              {
-                type: 'single' as const,
-                name: i18n('Relay discovery'),
-                description: null,
-                value: i18n(
-                  status in DISCOVERY
-                    ? DISCOVERY[status as keyof typeof DISCOVERY]
-                    : 'Unknown',
-                ),
-                masked: false,
-                copyable: false,
-                qr: false,
-                launchable: false,
-              },
-            ],
-          }
-        }),
-      ),
-    },
-  }),
+          }),
+        ),
+      },
+    }
+  },
 )

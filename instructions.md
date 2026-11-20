@@ -12,10 +12,11 @@ That wallet is the difference worth knowing about. Run Chama anywhere else and y
 
 ## Getting set up
 
-1. Open **Chama** from the Interfaces tab.
-2. Create a new Chama identity, or import your existing Nostr account key.
-3. Choose your home community and join its Fedimint federation from inside Chama.
-4. Save your Nostr account key somewhere safe.
+1. Run **Create UI Password** from the Actions tab and save the username and password it shows. Chama does not start until you have.
+2. Open **Chama** from the Interfaces tab and sign in with that username and password when your browser asks.
+3. Create a new Chama identity, or import your existing Nostr account key.
+4. Choose your home community and join its Fedimint federation from inside Chama.
+5. Save your Nostr account key somewhere safe.
 
 Until you have joined a federation you can browse Chama, but your wallet cannot receive or escrow ecash.
 
@@ -28,6 +29,10 @@ While the wallet is starting up, Chama keeps you signed in and shows **Connectin
 Chama opens on your own marketplace: post offers, negotiate directly with the other trader, and settle through your federation, Lightning, or on-chain Bitcoin. A community arbiter is part of the escrow but only steps in when a trade needs help — the [technical overview](https://github.com/jesuspirate/chama/blob/main/chama-technical-overview.pdf) covers how that escrow is built if you want the detail.
 
 **Open Chama at one address and stay on it.** Your identity, contacts, drafts, and settings are stored by your browser and tied to the exact address you used. Reaching the same server over LAN, over Tor, or through a custom domain gives you three separate, empty Chamas — the wallet on the server is shared, but nothing else is.
+
+### Reset UI Password
+
+Generates a new password for signing in to Chama and shows it, replacing the old one. Run it if you lose the password or want to change it; every browser then asks for the new one.
 
 ### Wallet Bridge Status
 

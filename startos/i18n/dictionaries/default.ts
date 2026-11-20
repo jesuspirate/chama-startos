@@ -24,6 +24,18 @@ const dict = {
   'Your self-hosted Chama marketplace with a native Fedimint wallet': 25,
   "Report the federation and relay discovery state of Chama's native Fedimint wallet": 26,
   'Chama holds ecash only once you have joined a federation inside the app.': 27,
+
+  // actions/setUiPassword.ts, init/initializeCredentials.ts
+  'Create UI Password': 28,
+  'Reset UI Password': 29,
+  'Generate the password for signing in to Chama': 30,
+  'Generate a new password for signing in to Chama': 31,
+  'Replaces the current Chama password.': 32,
+  'Chama Sign-In': 33,
+  'Your browser asks for these when you open Chama. Save them to a password manager.': 34,
+  Username: 35,
+  Password: 36,
+  'Create the password for signing in to Chama': 37,
 } as const
 
 /**

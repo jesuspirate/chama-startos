@@ -1,9 +1,14 @@
+import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
 import { clients } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info(i18n('Starting Chama'))
+
+  const bridgeAuthToken = await storeJson
+    .read((s) => s.bridgeAuthToken)
+    .const(effects)
 
   return sdk.Daemons.of(effects).addDaemon('primary', {
     subcontainer: sdk.SubContainer.of(
@@ -17,7 +22,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
       }),
       'chama-sub',
     ),
-    exec: { command: ['/usr/local/bin/chama-startos-entrypoint'] },
+    exec: {
+      command: ['/usr/local/bin/chama-startos-entrypoint'],
+      env: { CHAMA_BRIDGE_AUTH_TOKEN: bridgeAuthToken ?? '' },
+    },
     ready: {
       display: i18n('Web App'),
       gracePeriod: 30_000,
