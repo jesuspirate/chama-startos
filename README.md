@@ -99,6 +99,8 @@ It is bound on its own MultiHost, `client-one-host`, and is not masked. **StartO
 
 The wallet bridge listens on `127.0.0.1:8787` inside the container and is never exported. It requires `Authorization: Bearer <bridgeAuthToken>` on every route, `/health` included; nginx proxies `/bridge/` to it and supplies that header, so the browser never holds the token.
 
+**nginx answers `/bridge/` only for Chama's own page.** It returns 403 when `Origin` is present and is not the request's own `<scheme>://<Host>` (`null` included), or when `Sec-Fetch-Site` is present and is not `same-origin`. The scheme is `https` when StartOS's proxy sent `X-Forwarded-Proto: https`, which it does on its TLS leg and strips from clients, so the comparison holds on every address Chama is served at: `.local`, IP and port (bracketed IPv6 included), onion and public domains. Requests carrying neither header, which is every non-browser client, are unaffected; the web client's own calls are same-origin `fetch`es. A request typed into the address bar (`Sec-Fetch-Site: none`) is refused too.
+
 **One proxy timeout is set to an hour, on purpose.** The invoice path is a long poll held open until a human actually pays, so a read timeout there is a clock on the person, not on the bridge. At nginx's default it hung up during an ordinary scan-the-QR pause and returned its own 504 page, which the client read as a _rejected payment_.
 
 ## Installation and First-Run Flow
